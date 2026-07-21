@@ -586,7 +586,7 @@ svg.ic{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.8;strok
   .print-page{ width:15in; height:9.375in; position:relative; overflow:hidden; page-break-after:always; break-after:page; box-sizing:border-box }
   .print-page:last-child{ page-break-after:auto }
   .print-page.slide{ position:relative !important; inset:auto !important; opacity:1 !important; pointer-events:none !important; transform:none !important; display:flex !important; padding:110px 76px 64px 40px !important }
-  .print-page.slide.cover{ padding:96px 24px 24px !important }
+  .print-page.slide.cover{ padding:96px 24px 24px !important; display:block !important }
   /* fuerza repintado en su propia capa: evita el bug de Chrome donde una imagen dentro de
      un contenedor overflow:hidden + border-radius no llega a imprimirse (queda en blanco) */
   .print-page .photo-frame, .print-page img{ transform:translateZ(0) !important; -webkit-backface-visibility:hidden !important }
@@ -594,7 +594,7 @@ svg.ic{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.8;strok
      puede medir la página con un ancho distinto al de pantalla y disparar esas reglas */
   .print-page .photo-frame{ width:100% !important; height:100% !important; max-width:none !important; max-height:none !important; margin:auto !important }
   .print-page .photo-frame img:not(.photo-real){ object-fit:contain !important }
-  .print-page .cover-grid{ grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr) !important; padding:0 48px !important; gap:40px !important }
+  .print-page .cover-grid{ grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr) !important; padding:0 48px !important; gap:40px !important; margin:32px 0 0 !important }
   .print-page .cover-foot{ position:absolute !important; bottom:22px !important; left:48px !important; margin-top:0 !important; padding:0 !important }
   .print-page .mot-split{ grid-template-columns:.62fr 1.85fr !important }
   .print-page .snake-wrap{ padding:0 0 0 120px !important }
@@ -616,7 +616,7 @@ svg.ic{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.8;strok
   .print-objesp-card{ width:100% !important; height:100% !important; max-width:none !important; max-height:none !important; box-sizing:border-box; display:flex !important; flex-direction:column; justify-content:center; overflow:hidden }
   .print-objesp-card h3{ font-size:1.15rem !important; margin-bottom:10px !important }
   .print-objesp-card p{ font-size:.92rem !important; line-height:1.5 !important }
-  .print-fulltable{ height:auto !important; min-height:9.375in; overflow:visible !important; align-items:flex-start !important; padding:80px 90px !important; page-break-after:always; break-after:page }
+  .print-fulltable{ height:auto !important; min-height:9.375in; overflow:visible !important; align-items:flex-start !important; padding:110px 150px !important; page-break-after:always; break-after:page }
   .print-mt-card-full{ height:auto !important; max-height:none !important }
   .print-mt-list-full{ overflow:visible !important }
 }
