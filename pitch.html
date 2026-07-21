@@ -609,6 +609,13 @@ svg.ic{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.8;strok
   .print-mot-inner{ display:grid; grid-template-columns:.62fr 1.85fr; gap:20px; width:100%; height:100%; padding:0 20px }
   .print-mot-list{ display:flex; flex-direction:column; gap:9px; justify-content:center; overflow:visible }
   .print-mot-visual{ height:100% }
+  .print-objesp-grid{ display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:22px; width:100%; height:100% }
+  .print-objesp-card{ width:100% !important; height:100% !important; max-width:none !important; max-height:none !important; box-sizing:border-box; display:flex !important; flex-direction:column; justify-content:center; overflow:hidden }
+  .print-objesp-card h3{ font-size:1.15rem !important; margin-bottom:10px !important }
+  .print-objesp-card p{ font-size:.92rem !important; line-height:1.5 !important }
+  .print-fulltable{ height:auto !important; min-height:9.375in; overflow:visible !important; align-items:flex-start !important; padding:50px 60px !important; page-break-after:always; break-after:page }
+  .print-mt-card-full{ height:auto !important; max-height:none !important }
+  .print-mt-list-full{ overflow:visible !important }
 }
 </style>
 </head>
@@ -1379,11 +1386,11 @@ function buildClonedImageDetailPage(selector){
   return ppWrap(clone);
 }
 
-function buildObjEspDetailPage(i){
-  const card = document.createElement('div');
-  card.className = 'img-marker-panel-card';
-  card.innerHTML = `<h3>${OBJESP_INFO[i].t}</h3><p>${OBJESP_INFO[i].d}</p>`;
-  return ppWrap(card);
+function buildObjEspAllPage(){
+  const grid = document.createElement('div');
+  grid.className = 'print-objesp-grid';
+  grid.innerHTML = OBJESP_INFO.map(o=>`<div class="img-marker-panel-card print-objesp-card"><h3>${o.t}</h3><p>${o.d}</p></div>`).join('');
+  return ppWrap(grid);
 }
 
 function buildMarcoTeoDetailPage(i){
@@ -1410,6 +1417,33 @@ function buildMarcoTeoDetailPage(i){
     <div class="mt-table-subtitle">Modelo de Gobernanza Inteligente en Turismo de Bienestar para el Destino Turístico de La Fortuna, Costa Rica 2030</div>
     <div class="mt-acc-list has-active print-mt-list">${rows}</div>`;
   return ppWrap(card);
+}
+
+function buildMarcoTeoFullTablePage(){
+  const rows = MARCOTEO_TABLE.map((r,idx)=>`
+    <div class="mt-acc-item active" style="page-break-inside:avoid;break-inside:avoid">
+      <div class="mt-acc-row">
+        <span class="mt-acc-num">${String(idx+1).padStart(2,'0')}</span>
+        <span class="mt-acc-title">${MARCOTEO_INFO[idx].t.replace(/^\d+\.\s*/,'')}</span>
+        <span class="mt-acc-rol ${r.rol==='Explicativa'?'explicativa':''}">${r.rol}</span>
+      </div>
+      <div class="mt-acc-detail" style="max-height:none"><div class="mt-acc-detail-in">
+        <div class="mt-acc-field"><label>¿Qué es?</label><p>${r.queEs}</p></div>
+        <div class="mt-acc-field"><label>¿Por qué?</label><p>${r.porQue}</p></div>
+        <div class="mt-acc-field"><label>¿Cómo?</label><p>${r.como}</p></div>
+        <div class="mt-acc-field"><label>Qué</label><p>${r.que}</p></div>
+      </div></div>
+    </div>`).join('');
+  const card = document.createElement('div');
+  card.className = 'mt-table-card print-mt-card print-mt-card-full';
+  card.innerHTML = `
+    <div class="mt-table-title">Tabla del marco teórico — completa</div>
+    <div class="mt-table-subtitle">Modelo de Gobernanza Inteligente en Turismo de Bienestar para el Destino Turístico de La Fortuna, Costa Rica 2030</div>
+    <div class="mt-acc-list has-active print-mt-list print-mt-list-full">${rows}</div>`;
+  const p = document.createElement('div');
+  p.className = 'print-page print-detail print-fulltable';
+  p.appendChild(card);
+  return p;
 }
 
 function buildMotDetailPage(i){
@@ -1439,9 +1473,10 @@ function buildPrintPages(){
       const p = buildClonedImageDetailPage('#pregOverlay .preg-card-img');
       if(p) pages.push(p);
     } else if(section === 'Obj. Específicos'){
-      OBJESP_INFO.forEach((_,i)=> pages.push(buildObjEspDetailPage(i)));
+      pages.push(buildObjEspAllPage());
     } else if(section === 'Marco teórico'){
       MARCOTEO_INFO.forEach((_,i)=> pages.push(buildMarcoTeoDetailPage(i)));
+      pages.push(buildMarcoTeoFullTablePage());
     } else if(section === 'Marco Metodológico'){
       pages.push(buildImageDetailPage(MARCOMETO_IMAGES[0], 'Filosofía de la investigación'));
       pages.push(buildImageDetailPage(MARCOMETO_IMAGES[1], 'Estrategia de investigación'));
