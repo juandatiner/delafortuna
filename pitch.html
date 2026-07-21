@@ -579,6 +579,7 @@ svg.ic{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.8;strok
 .print-pdf-btn svg.ic{font-size:15px}
 #printRoot{display:none}
 @media print{
+  *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; color-adjust:exact !important }
   body > *:not(#printRoot){display:none !important}
   #printRoot{display:block !important}
   html,body{height:auto !important;overflow:visible !important;background:#050F0D !important}
@@ -587,10 +588,13 @@ svg.ic{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:1.8;strok
   .print-page:last-child{ page-break-after:auto }
   .print-page.slide{ position:relative !important; inset:auto !important; opacity:1 !important; pointer-events:none !important; transform:none !important; display:flex !important; padding:90px 56px 48px 20px !important }
   .print-page.slide.cover{ padding:78px 0 0 !important }
+  /* fuerza repintado en su propia capa: evita el bug de Chrome donde una imagen dentro de
+     un contenedor overflow:hidden + border-radius no llega a imprimirse (queda en blanco) */
+  .print-page .photo-frame, .print-page img{ transform:translateZ(0) !important; -webkit-backface-visibility:hidden !important }
   /* neutraliza los breakpoints responsivos (móvil) durante impresión: el motor de impresión
      puede medir la página con un ancho distinto al de pantalla y disparar esas reglas */
   .print-page .photo-frame{ width:100% !important; height:100% !important; max-width:none !important; max-height:none !important; margin:auto !important }
-  .print-page .photo-frame img{ object-fit:contain !important }
+  .print-page .photo-frame img:not(.photo-real){ object-fit:contain !important }
   .print-page .cover-grid{ grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr) !important; padding:0 48px !important; gap:40px !important }
   .print-page .cover-foot{ position:absolute !important; bottom:22px !important; left:48px !important; margin-top:0 !important; padding:0 !important }
   .print-page .mot-split{ grid-template-columns:.62fr 1.85fr !important }
@@ -1393,35 +1397,11 @@ function buildObjEspAllPage(){
   return ppWrap(grid);
 }
 
-function buildMarcoTeoDetailPage(i){
-  const rows = MARCOTEO_TABLE.map((r,idx)=>{
-    const active = idx===i;
-    return `<div class="mt-acc-item${active?' active':''}">
-      <div class="mt-acc-row">
-        <span class="mt-acc-num">${String(idx+1).padStart(2,'0')}</span>
-        <span class="mt-acc-title">${MARCOTEO_INFO[idx].t.replace(/^\d+\.\s*/,'')}</span>
-        <span class="mt-acc-rol ${r.rol==='Explicativa'?'explicativa':''}">${r.rol}</span>
-      </div>
-      ${active?`<div class="mt-acc-detail" style="max-height:340px"><div class="mt-acc-detail-in">
-        <div class="mt-acc-field"><label>¿Qué es?</label><p>${r.queEs}</p></div>
-        <div class="mt-acc-field"><label>¿Por qué?</label><p>${r.porQue}</p></div>
-        <div class="mt-acc-field"><label>¿Cómo?</label><p>${r.como}</p></div>
-        <div class="mt-acc-field"><label>Qué</label><p>${r.que}</p></div>
-      </div></div>`:''}
-    </div>`;
-  }).join('');
-  const card = document.createElement('div');
-  card.className = 'mt-table-card print-mt-card';
-  card.innerHTML = `
-    <div class="mt-table-title">Tabla del marco teórico</div>
-    <div class="mt-table-subtitle">Modelo de Gobernanza Inteligente en Turismo de Bienestar para el Destino Turístico de La Fortuna, Costa Rica 2030</div>
-    <div class="mt-acc-list has-active print-mt-list">${rows}</div>`;
-  return ppWrap(card);
-}
-
 function buildMarcoTeoFullTablePage(){
-  const rows = MARCOTEO_TABLE.map((r,idx)=>`
-    <div class="mt-acc-item active" style="page-break-inside:avoid;break-inside:avoid">
+  const rows = MARCOTEO_TABLE.map((r,idx)=>{
+    const forceBreak = idx===4 || idx===9; // grupos de 5, 5, 3
+    return `
+    <div class="mt-acc-item active" style="page-break-inside:avoid;break-inside:avoid${forceBreak?';page-break-after:always;break-after:page':''}">
       <div class="mt-acc-row">
         <span class="mt-acc-num">${String(idx+1).padStart(2,'0')}</span>
         <span class="mt-acc-title">${MARCOTEO_INFO[idx].t.replace(/^\d+\.\s*/,'')}</span>
@@ -1433,7 +1413,8 @@ function buildMarcoTeoFullTablePage(){
         <div class="mt-acc-field"><label>¿Cómo?</label><p>${r.como}</p></div>
         <div class="mt-acc-field"><label>Qué</label><p>${r.que}</p></div>
       </div></div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
   const card = document.createElement('div');
   card.className = 'mt-table-card print-mt-card print-mt-card-full';
   card.innerHTML = `
@@ -1475,7 +1456,6 @@ function buildPrintPages(){
     } else if(section === 'Obj. Específicos'){
       pages.push(buildObjEspAllPage());
     } else if(section === 'Marco teórico'){
-      MARCOTEO_INFO.forEach((_,i)=> pages.push(buildMarcoTeoDetailPage(i)));
       pages.push(buildMarcoTeoFullTablePage());
     } else if(section === 'Marco Metodológico'){
       pages.push(buildImageDetailPage(MARCOMETO_IMAGES[0], 'Filosofía de la investigación'));
